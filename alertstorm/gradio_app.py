@@ -249,7 +249,7 @@ def create_app():
     }
     """
 
-    with gr.Blocks(title="AlertStorm Agent Dashboard", theme=theme, css=custom_css) as app:
+    with gr.Blocks(title="AlertStorm Agent Dashboard", theme=theme, css=custom_css, fill_height=True) as app:
         env_state = gr.State(None)
         chat_history = gr.State([])
         investigated_nodes = gr.State(set())
