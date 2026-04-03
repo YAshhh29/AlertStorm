@@ -2,7 +2,7 @@
 title: AlertStorm Simulator
 emoji: 🚨
 colorFrom: red
-colorTo: orange
+colorTo: pink
 sdk: docker
 app_port: 8000
 tags:
