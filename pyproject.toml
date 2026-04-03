@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openenv-alertstorm"
+version = "1.0.0"
+description = "AlertStorm OpenEnv environment for SRE root cause analysis"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "openenv-core[core]>=0.2.1",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.24.0",
+    "pydantic>=2.0.0",
+    "requests>=2.31.0",
+    "openai>=1.0.0",
+]
+
+[project.scripts]
+server = "alertstorm.server.app:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["alertstorm*"]
