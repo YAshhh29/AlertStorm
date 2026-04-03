@@ -161,32 +161,6 @@ graph TB
     end
 ```
 
-### Environment State Machine
-
-```mermaid
-stateDiagram-v2
-    [*] --> RESET: POST /reset
-    
-    RESET --> OBSERVING: Returns initial observation
-    
-    OBSERVING --> INVESTIGATING: investigate(node)
-    INVESTIGATING --> INVESTIGATING: investigate(other_node)
-    INVESTIGATING --> SUPPRESSING: suppress_alert(alert_id)
-    
-    SUPPRESSING --> INVESTIGATING: investigate(node)
-    SUPPRESSING --> SUPPRESSING: suppress_alert(other)
-    
-    INVESTIGATING --> PROPOSING: propose_root_cause(node)
-    SUPPRESSING --> PROPOSING: propose_root_cause(node)
-    OBSERVING --> PROPOSING: propose_root_cause(node)
-    
-    PROPOSING --> SUCCESS: Correct root cause(s)
-    PROPOSING --> FAILURE: Wrong root cause(s)
-    
-    SUCCESS --> [*]: done=True, reward=1.0
-    FAILURE --> [*]: done=True, reward=0.0
-```
-
 ### Reward Signal Flow
 
 ```mermaid
