@@ -15,11 +15,11 @@ import requests
 from openai import OpenAI
 import os
 
-API_BASE_URL = os.getenv("API_BASE_URL")
-API_KEY = os.getenv("HF_TOKEN")
-MODEL_NAME = os.getenv("MODEL_NAME")
+API_BASE_URL = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
+MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4-turbo")
+HF_TOKEN = os.getenv("HF_TOKEN")
 
-client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
+client = OpenAI(base_url=API_BASE_URL, api_key=HF_TOKEN)
 
 # Assuming ALERTSTORM_API_URL is the local environment server you are running
 API_URL = os.getenv("ALERTSTORM_API_URL", "http://127.0.0.1:8000")
@@ -175,6 +175,7 @@ def evaluate_task(api_key, base_url, model_name, task_choice, max_steps=10):
     fatal_names = [a.get('service') for a in active_alerts if 'FATAL' in a.get('type', '')]
     print(f"  [debug] alerted={alerted_names} fatal={fatal_names}")
 
+    print("START")
     total_reward = 0.0
     history = []
 
@@ -199,19 +200,16 @@ def evaluate_task(api_key, base_url, model_name, task_choice, max_steps=10):
             action_str = f"{action.get('action_type')} on {action.get('targets')}"
             history.append(f"Step {step+1}: {action_str} -> reward {step_reward:.2f}")
 
-            print(
-                f"  Step {step+1:2d}: {action.get('action_type'):20s} "
-                f"targets={str(action.get('targets')):30s} "
-                f"reward={step_reward:.2f} done={done}"
-            )
+            print("STEP")
+            print(f"Action: {action.get('action_type')} {action.get('targets')}")
 
             if done:
                 break
 
         except Exception as e:
-            print(f"  Step {step} error: {e}")
             continue
 
+    print("END")
     return round(min(1.0, max(0.0, total_reward)), 2)
 
 
