@@ -211,8 +211,45 @@ def create_app():
         neutral_hue="slate",
         font=[gr.themes.GoogleFont("Geist"), "sans-serif"]
     )
-    
-    with gr.Blocks(title="AlertStorm Agent Dashboard") as app:
+
+    custom_css = """
+    .gradio-container {
+        font-family: 'Geist', sans-serif !important;
+        transition: background-color 0.4s ease;
+    }
+
+    /* Interactive glowing buttons */
+    button.primary {
+        box-shadow: 0 4px 15px rgba(6, 104, 225, 0.3);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    button.primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(6, 104, 225, 0.4);
+    }
+    button.stop {
+        box-shadow: 0 4px 15px rgba(238, 76, 44, 0.3);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    button.stop:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(238, 76, 44, 0.4);
+    }
+
+    /* PURE BLACK DARK MODE */
+    .dark .gradio-container {
+        background: #000000 !important;
+    }
+    .dark .svelte-container {
+        border-color: rgba(255, 255, 255, 0.08) !important;
+        background: #000000 !important;
+    }
+    .dark .panel {
+        background: #0a0a0a !important;
+    }
+    """
+
+    with gr.Blocks(title="AlertStorm Agent Dashboard", theme=theme, css=custom_css) as app:
         env_state = gr.State(None)
         chat_history = gr.State([])
         investigated_nodes = gr.State(set())

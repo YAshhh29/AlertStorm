@@ -62,6 +62,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Merge Gradio UI into the main API app
+import gradio as gr
+from alertstorm.gradio_app import create_app as create_gradio_app
+gradio_app = create_gradio_app()
+app = gr.mount_gradio_app(app, gradio_app, path="/")
 
 @app.get("/baseline")
 def get_baseline():
