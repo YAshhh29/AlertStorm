@@ -432,9 +432,8 @@ python inference.py
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `API_BASE_URL` | Yes | `https://router.huggingface.co/v1` | LLM API endpoint |
-| `MODEL_NAME` | Yes | `meta-llama/Meta-Llama-3-8B-Instruct` | Model identifier |
+| `API_BASE_URL` | Yes | `https://api.openai.com/v1` | LLM API endpoint |
+| `MODEL_NAME` | Yes | `gpt-4-turbo` | Model identifier |
 | `HF_TOKEN` | Yes | - | Hugging Face API key |
-
 ---
 
