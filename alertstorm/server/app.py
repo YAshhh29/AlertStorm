@@ -130,7 +130,8 @@ def evaluate_submission(payload: dict):
         trace = []
 
     # Correct terminal proposal yields final_reward=1.0 in this env.
-    correctness = 1.0 if done and final_reward >= 1.0 else 0.0
+    # Clamp to (0, 1) range
+    correctness = 0.99 if done and final_reward >= 1.0 else 0.01
 
     # Positive non-terminal rewards represent useful investigation/suppression progress.
     non_terminal_positive = 0.0
@@ -144,28 +145,30 @@ def evaluate_submission(payload: dict):
 
     # Fallback if trace is unavailable.
     if non_terminal_positive <= 0.0:
-        non_terminal_positive = max(0.0, episode_return - (1.0 if correctness else 0.0))
+        non_terminal_positive = max(0.0, episode_return - (1.0 if correctness > 0.5 else 0.0))
 
-    # Two +0.1 useful micro-actions saturate micro component at 1.0.
-    micro_component = min(non_terminal_positive / 0.2, 1.0)
+    # Two +0.1 useful micro-actions saturate micro component at 0.99.
+    micro_component = min(non_terminal_positive / 0.2, 0.99)
+    micro_component = max(0.01, micro_component)
 
-    # Step efficiency in [0, 1], where 1 means solved in first step.
+    # Step efficiency in (0, 1), where ~1 means solved in first step.
     efficiency = 1.0 - (max(steps_taken - 1, 0) / max(max_steps - 1, 1))
-    efficiency = max(0.0, min(1.0, efficiency))
+    efficiency = max(0.01, min(0.99, efficiency))
 
     score = 0.75 * correctness + 0.15 * micro_component + 0.10 * efficiency
 
-    # If provider failed before producing any usable trajectory, keep score at 0.
+    # If provider failed before producing any usable trajectory, use minimum valid score
     if provider_failed and not trace:
-        score = 0.0
+        score = 0.001
 
-    score = max(0.0, min(1.0, score))
+    # Clamp to strictly between 0 and 1 (not 0.0 or 1.0)
+    score = max(0.001, min(0.999, score))
 
     return {
-        "score": round(score, 3),
+        "score": round(score, 4),
         "feedback": "Continuous grader evaluated correctness, trajectory, and efficiency.",
         "valid": True,
-        "in_range": 0.0 <= score <= 1.0,
+        "in_range": 0.0 < score < 1.0,
         "components": {
             "correctness": round(correctness, 3),
             "micro_progress": round(micro_component, 3),

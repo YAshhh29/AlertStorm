@@ -245,11 +245,11 @@ def evaluate_task(task_name: str, client=None) -> float:
                 steps_taken = step
                 continue
         
-        score = rewards[-1] if rewards else 0.0
-        score = min(max(score, 0.0), 1.0)
+        score = rewards[-1] if rewards else 0.001
+        score = min(max(score, 0.001), 0.999)  # Strictly between 0 and 1
         
     except Exception:
-        score = 0.0
+        score = 0.001  # Strictly > 0
         success = False
     
     log_end(success=success, steps=steps_taken, score=score, rewards=rewards)
