@@ -210,7 +210,7 @@ def get_baseline():
         scores = json.loads(json_str)
         return scores
     except Exception as e:
-        return {"baseline_score": 0.0, "status": "failed", "error": str(e)}
+        return {"baseline_score": 0.001, "status": "failed", "error": str(e)}
 
 # ══════════════════════════════════════════════════════════════════════════════
 # Mount Gradio AFTER all API endpoints are defined

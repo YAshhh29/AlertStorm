@@ -290,7 +290,7 @@ def evaluate_task(api_key, base_url, model_name, task_choice, max_steps=10):
     raw = requests.post(f"{API_URL}/reset", timeout=15)
     if raw.status_code != 200:
         print(f"Reset failed for task {task_choice}")
-        return 0.0
+        return 0.001
 
     obs, _, _ = _parse_response(raw.json())
     active_alerts = obs.get("active_alerts", [])
@@ -340,7 +340,7 @@ def evaluate_task(api_key, base_url, model_name, task_choice, max_steps=10):
             print(f"  Step {step} error: {e}")
             continue
 
-    return round(min(1.0, max(0.0, total_reward)), 2)
+    return round(min(0.999, max(0.001, total_reward)), 3)
 
 
 def run_baseline():

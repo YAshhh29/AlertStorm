@@ -198,8 +198,8 @@ def evaluate_task(task_name: str, client=None) -> float:
     try:
         raw = requests.post(f"{API_URL}/reset", timeout=15)
         if raw.status_code != 200:
-            log_end(success=False, steps=0, score=0.0, rewards=[])
-            return 0.0
+            log_end(success=False, steps=0, score=0.001, rewards=[])
+            return 0.001
         
         obs, _, _ = _parse_response(raw.json())
         active_alerts = obs.get("active_alerts", [])
