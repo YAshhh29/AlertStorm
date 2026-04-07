@@ -18,7 +18,7 @@ COPY inference.py /app/inference.py
 
 EXPOSE 8000
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=5 \
 	CMD curl -f http://localhost:8000/tasks || exit 1
 
 WORKDIR /app/alertstorm

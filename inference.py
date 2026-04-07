@@ -11,9 +11,9 @@ MANDATORY
 import os
 import re
 import json
+import time
 import requests
 from openai import OpenAI
-import os
 
 API_BASE_URL = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4-turbo")
@@ -134,7 +134,6 @@ Respond with ONE JSON object only. No text before or after it, no markdown ``` b
             return {"action_type": "investigate", "targets": [fallback_target]}
         else:
             return {"action_type": "investigate", "targets": [list(dependency_graph.keys())[0]]}
-
 
 def _validate(parsed, valid_nodes, active_alerts, dependency_graph, task_level):
     """Reject hallucinated node names before they reach the server."""

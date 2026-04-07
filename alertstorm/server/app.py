@@ -62,50 +62,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Merge Gradio UI into the main API app
-import gradio as gr
-try:
-    from alertstorm.gradio_app import create_app as create_gradio_app
-except ImportError:
-    from gradio_app import create_app as create_gradio_app
-gradio_app = create_gradio_app()
-app = gr.mount_gradio_app(app, gradio_app, path="/")
-
-@app.get("/baseline")
-def get_baseline():
-    """
-    Returns baseline capability.
-    Required by OpenEnv standard grader interface.
-    """
-    import subprocess
-    import sys
-    import json
-    import os
-    try:
-        env = os.environ.copy()
-        repo_root_script = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "..", "..", "inference.py")
-        )
-        local_script = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "..", "inference.py")
-        )
-        script_path = repo_root_script if os.path.exists(repo_root_script) else local_script
-
-        if not os.path.exists(script_path):
-            raise FileNotFoundError("Could not find inference.py in repository root or alertstorm package.")
-
-        result = subprocess.run([sys.executable, script_path], capture_output=True, text=True, env=env)
-
-        output = result.stdout
-        start = output.find("{")
-        end = output.rfind("}")
-        if start == -1 or end == -1:
-            raise ValueError("Baseline script did not emit JSON scores.")
-        json_str = output[start:end + 1]
-        scores = json.loads(json_str)
-        return scores
-    except Exception as e:
-        return {"baseline_score": 0.0, "status": "failed", "error": str(e)}
+# ══════════════════════════════════════════════════════════════════════════════
+# IMPORTANT: Define ALL custom API endpoints BEFORE mounting Gradio at "/"
+# Gradio at "/" will catch all unmatched routes, so our endpoints must be first.
+# ══════════════════════════════════════════════════════════════════════════════
 
 @app.get("/tasks")
 def get_tasks():
@@ -213,6 +173,52 @@ def evaluate_submission(payload: dict):
         },
     }
 
+@app.get("/baseline")
+def get_baseline():
+    """
+    Returns baseline capability.
+    Required by OpenEnv standard grader interface.
+    """
+    import subprocess
+    import sys
+    import json
+    import os
+    try:
+        env = os.environ.copy()
+        repo_root_script = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "..", "inference.py")
+        )
+        local_script = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "inference.py")
+        )
+        script_path = repo_root_script if os.path.exists(repo_root_script) else local_script
+
+        if not os.path.exists(script_path):
+            raise FileNotFoundError("Could not find inference.py in repository root or alertstorm package.")
+
+        result = subprocess.run([sys.executable, script_path], capture_output=True, text=True, env=env)
+
+        output = result.stdout
+        start = output.find("{")
+        end = output.rfind("}")
+        if start == -1 or end == -1:
+            raise ValueError("Baseline script did not emit JSON scores.")
+        json_str = output[start:end + 1]
+        scores = json.loads(json_str)
+        return scores
+    except Exception as e:
+        return {"baseline_score": 0.0, "status": "failed", "error": str(e)}
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Mount Gradio AFTER all API endpoints are defined
+# ══════════════════════════════════════════════════════════════════════════════
+import gradio as gr
+try:
+    from alertstorm.gradio_app import create_app as create_gradio_app
+except ImportError:
+    from gradio_app import create_app as create_gradio_app
+gradio_app = create_gradio_app()
+app = gr.mount_gradio_app(app, gradio_app, path="/")
 
 
 def main(host: str = "0.0.0.0", port: int = 8000):
