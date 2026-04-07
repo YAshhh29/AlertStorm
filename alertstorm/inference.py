@@ -345,23 +345,14 @@ def evaluate_task(api_key, base_url, model_name, task_choice, max_steps=10):
 
 def run_baseline():
     api_key    = os.getenv("HF_TOKEN", "")
-    base_url   = os.getenv("API_BASE_URL", "")
-    model_name = os.getenv("MODEL_NAME", "")
+    base_url   = os.getenv("API_BASE_URL", "") or "https://router.huggingface.co/v1"
+    model_name = os.getenv("MODEL_NAME", "") or "Qwen/Qwen2.5-72B-Instruct"
 
     print("Running AlertStorm baseline evaluation")
     print(f"  API Base URL: {base_url}")
     print(f"  Model:        {model_name}")
-    print(f"  API Key:      {'[SET]' if api_key else '[NOT SET]'}")
+    print(f"  API Key:      {'[SET]' if api_key else '[NOT SET - using heuristic]'}")
     print()
-
-    if not base_url:
-        raise EnvironmentError("API_BASE_URL is not set. Please: set API_BASE_URL=<your-openai-compatible-endpoint>")
-
-    if not model_name:
-        raise EnvironmentError("MODEL_NAME is not set. Please: set MODEL_NAME=<your-model-id>")
-
-    if not api_key:
-        raise EnvironmentError("HF_TOKEN is not set. Please: set HF_TOKEN=<your-hf-token>")
 
     tasks  = ["standard_easy", "standard_medium", "standard_hard", "enterprise_easy", "enterprise_medium", "enterprise_hard"]
     scores = {}
@@ -370,13 +361,13 @@ def run_baseline():
         print(f"Evaluating task: {task}")
         max_steps = 25 if task.startswith("enterprise_") else 10
         scores[task] = evaluate_task(api_key, base_url, model_name, task, max_steps=max_steps)
-        print(f"  Final score: {scores[task]:.2f}\n")
+        print(f"  Final score: {scores[task]:.4f}\n")
 
     print("=" * 50)
     print("BASELINE SCORES:")
     for task, score in scores.items():
-        print(f"  {task}: {score:.2f}")
-    print(f"  Average: {sum(scores.values()) / len(scores):.2f}")
+        print(f"  {task}: {score:.4f}")
+    print(f"  Average: {sum(scores.values()) / len(scores):.4f}")
     print("=" * 50)
 
     return scores
