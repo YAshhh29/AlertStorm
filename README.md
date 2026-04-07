@@ -29,6 +29,36 @@ An agent investigates alerts, suppresses distractor noise, and proposes the true
 - Extended endpoints: `/tasks`, `/grader`, `/baseline`, `/reset_with_task`
 - Metadata: `openenv.yaml` at repository root
 
+## Phase 2 Validation Fixes
+
+> **Transparency Note:** The initial submission failed Phase 2 validation multiple times. The following changes were required to pass the hackathon's automated validation pipeline. The benchmark scores above reflect agent success rates and remain accurate—the technical fixes below only changed the internal float representation to satisfy validator constraints.
+
+### Issues Discovered & Fixed
+
+| Submission | Error | Root Cause | Fix Applied |
+|------------|-------|------------|-------------|
+| #2 | `/tasks` returned 404, HEALTHCHECK timeout | Gradio mounted at "/" intercepted all routes | Moved custom endpoints BEFORE Gradio mount |
+| #2 | `inference.py` crashed with NameError | Missing `import time` | Added import statement |
+| #4 | `EnvironmentError: MODEL_NAME is not set` | Script raised exceptions when env vars missing | Removed all `raise EnvironmentError`, added defaults |
+| #5-7 | `task scores are out of range` | Validator rejects exact `0.0` or `1.0` floats | Clamped outputs to `0.01 - 0.99` (semantically equivalent) |
+
+### Key Compliance Changes
+
+1. **Score Range**: Validator requires scores **strictly between 0 and 1** as float values. Outputs now return `0.99` for success (instead of `1.0`) and `0.01` for failure (instead of `0.0`). The benchmark table displays rounded values for readability.
+
+2. **Inference Logging Format**: Changed to required structured format:
+   ```
+   [START] task=<task_name> env=alertstorm model=<model_name>
+   [STEP] step=<n> action=<action_str> reward=<0.00> done=<true|false> error=<msg|null>
+   [END] success=<true|false> steps=<n> score=<score> rewards=<r1,r2,...,rn>
+   ```
+
+3. **Heuristic Fallback Solver**: Added deterministic graph-based solver that runs when no LLM API key is available, ensuring `inference.py` never crashes.
+
+4. **Route Ordering**: `/tasks`, `/grader`, `/baseline` endpoints defined before Gradio mount.
+
+5. **Docker HEALTHCHECK**: Increased `start-period` from 10s to 30s.
+
 ## Tasks
 
 - `standard_easy`: 8-node single root cause cascade
