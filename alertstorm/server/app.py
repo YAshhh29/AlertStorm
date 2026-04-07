@@ -159,10 +159,10 @@ def evaluate_submission(payload: dict):
 
     # If provider failed before producing any usable trajectory, use minimum valid score
     if provider_failed and not trace:
-        score = 0.001
+        score = 0.01
 
     # Clamp to strictly between 0 and 1 (not 0.0 or 1.0)
-    score = max(0.001, min(0.999, score))
+    score = max(0.01, min(0.99, score))
 
     return {
         "score": round(score, 4),
@@ -210,7 +210,7 @@ def get_baseline():
         scores = json.loads(json_str)
         return scores
     except Exception as e:
-        return {"baseline_score": 0.001, "status": "failed", "error": str(e)}
+        return {"baseline_score": 0.01, "status": "failed", "error": str(e)}
 
 # ══════════════════════════════════════════════════════════════════════════════
 # Mount Gradio AFTER all API endpoints are defined

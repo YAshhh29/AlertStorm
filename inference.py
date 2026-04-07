@@ -57,7 +57,7 @@ def log_step(step: int, action: str, reward: float, done: bool, error: Optional[
 
 def log_end(success: bool, steps: int, score: float, rewards: List[float]) -> None:
     rewards_str = ",".join(f"{r:.2f}" for r in rewards)
-    print(f"[END] success={str(success).lower()} steps={steps} score={score:.2f} rewards={rewards_str}", flush=True)
+    print(f"[END] success={str(success).lower()} steps={steps} score={score:.4f} rewards={rewards_str}", flush=True)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -198,8 +198,8 @@ def evaluate_task(task_name: str, client=None) -> float:
     try:
         raw = requests.post(f"{API_URL}/reset", timeout=15)
         if raw.status_code != 200:
-            log_end(success=False, steps=0, score=0.001, rewards=[])
-            return 0.001
+            log_end(success=False, steps=0, score=0.01, rewards=[])
+            return 0.01
         
         obs, _, _ = _parse_response(raw.json())
         active_alerts = obs.get("active_alerts", [])
@@ -245,11 +245,11 @@ def evaluate_task(task_name: str, client=None) -> float:
                 steps_taken = step
                 continue
         
-        score = rewards[-1] if rewards else 0.001
-        score = min(max(score, 0.001), 0.999)  # Strictly between 0 and 1
+        score = rewards[-1] if rewards else 0.01
+        score = min(max(score, 0.01), 0.99)  # Strictly between 0 and 1
         
     except Exception:
-        score = 0.001  # Strictly > 0
+        score = 0.01  # Strictly > 0
         success = False
     
     log_end(success=success, steps=steps_taken, score=score, rewards=rewards)
